@@ -94,9 +94,16 @@ void MainScene::Initialize()
     //障害物状態
     obstacleStatus = bigRockState;
 
-    //ランダムリセット座標
+    //岩以外障害物ランダムリセット座標
     randomObstaclePositionY = std::uniform_real_distribution<float>(obstacleAppearanceTop, obstacleAppearanceBottom);
     obstacleResetPositionY = randomObstaclePositionY(randomEngine);
+
+    //岩(大)場所状態
+    bigRockPositionState = topPositionState;
+    
+    //岩(大)ランダムリセット座標
+    randomBigRockPosition = std::uniform_int_distribution<int>(topPositionState, bottomPositionState);
+    bigRockPositionPattern = randomBigRockPosition(randomEngine);
 
     //ランダム
     randomObstacle = std::uniform_int_distribution<int>(1, 4);
@@ -976,6 +983,7 @@ void MainScene::obstacleReLotteryUpdate()
         obstacleStatus = birdState;
         break;
     case bigRockState:
+        bigRockPositionPattern = randomBigRockPosition(randomEngine);
         obstacleStatus = bigRockState;
         break;
     case smallRockState:
@@ -991,7 +999,20 @@ void MainScene::obstacleReLotteryUpdate()
 void MainScene::obstaclePositionResetUpdate()
 {
     obstacleReLotteryUpdate();
-    obstacleResetPositionY = randomObstaclePositionY(randomEngine);
+    if (obstacleStatus == bigRockState) {
+        switch (bigRockPositionPattern) {
+        case topPositionState:
+            obstacleResetPositionY = bigRockTopPosition;
+            break;
+        case bottomPositionState:
+            obstacleResetPositionY = bigRockBottomPosition;
+            break;
+        }
+
+    }
+    else {
+        obstacleResetPositionY = randomObstaclePositionY(randomEngine);
+    }
 
     //鳥
     birdPositionX = obstacleInitialPositionX;

@@ -221,6 +221,10 @@ private:
     std::uniform_real_distribution<float> randomObstaclePositionY;
     float obstacleResetPositionY;
 
+    //岩(大)ランダム位置
+    std::uniform_int_distribution<int> randomBigRockPosition;
+    bool bigRockPositionPattern;
+
     //障害物ランダムパターン
     std::uniform_int_distribution<int> randomObstacle;
     int obstaclePattern;
@@ -228,6 +232,15 @@ private:
     //障害物出現範囲
     const float obstacleAppearanceTop = 251.0f;
     const float obstacleAppearanceBottom = 510.0f;
+
+    //岩(大)出現場所
+    int bigRockPositionState;
+    enum bigRockPosition {
+        topPositionState,
+        bottomPositionState
+    };
+    const float bigRockTopPosition = 250.0f;
+    const float bigRockBottomPosition = 480.0f;
 
     //障害物サイズ
     enum obstacleScale {
