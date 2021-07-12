@@ -1,5 +1,5 @@
 //
-// MainScene.h
+// ManualScene.h
 //
 
 #pragma once
@@ -12,16 +12,16 @@ using std::unique_ptr;
 using std::make_unique;
 using namespace DirectX;
 
-class MainScene final : public Scene {
+class ManualScene final : public Scene {
 public:
-    MainScene();
-    virtual ~MainScene() { Terminate(); }
+    ManualScene();
+    virtual ~ManualScene() { Terminate(); }
 
-    MainScene(MainScene&&) = default;
-    MainScene& operator= (MainScene&&) = default;
+    ManualScene(ManualScene&&) = default;
+    ManualScene& operator= (ManualScene&&) = default;
 
-    MainScene(MainScene const&) = delete;
-    MainScene& operator= (MainScene const&) = delete;
+    ManualScene(ManualScene const&) = delete;
+    ManualScene& operator= (ManualScene const&) = delete;
 
     // These are the functions you will implement.
     void Initialize() override;
@@ -283,7 +283,7 @@ private:
     float miniMapFishPositionX, miniMapFishPositionY;
     const float miniMapFishInitialPositionX = 100;
     const float miniMapFishInitialPositionY = 10;
-    
+
     //ゲージ
     DX9::SPRITE gaugeTestSprite;
     DX9::SPRITE gaugeBgTestSprite;
@@ -306,7 +306,7 @@ private:
     bool goal;
     float sceneChangeBuffer;
     //ゴール距離
-    enum { lengthToGoal = 2 };
+    enum { lengthToGoal = 1 };
     //ゴール後遷移までの時間
     const float goalAfterTime = 2.0f;
 
@@ -351,13 +351,13 @@ private:
 
     //移動可能範囲
     void playerMoveRangeUpdate();
-    
+
     //自動移動
     void playerAutoMoveUpdate(const float deltaTime);
-    
+
     //キーボード操作
     void playerControlKeyboardUpdate(const float deltaTime);
-   
+
     //パッド操作
     void playerControlGamepadUpdate(const float deltaTime);
 
@@ -371,7 +371,7 @@ private:
 
     //餌位置リセット
     void feedPositionResetUpdate();
-    
+
     //餌当たり判定
     bool isFeedCollisionDetectionUpdate();
 
@@ -410,7 +410,7 @@ private:
     //UI
     //ミニマップ
     void miniMapMoveUpdate(const float deltaTime);
-    
+
     //ゲージ
     void gaugeMoveUpdate();
 
