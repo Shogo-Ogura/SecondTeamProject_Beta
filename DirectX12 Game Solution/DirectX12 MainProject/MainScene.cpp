@@ -168,21 +168,16 @@ void MainScene::LoadAssets()
     
     //プレイヤー
     //小
-    //smallFishTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"smallFishSprite.png");
-    fishTestSprite[0] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"smallFishSprite.png");
+    fishSprite[smallFishState] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"smallFishSprite.png");
 
     //中
-    //mediumFishTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"catfishTestSprite.png");
-    mediumFishTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"mediumFishSprite.png");
-    fishTestSprite[1] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"mediumFishSprite.png");
+    fishSprite[mediumFishState] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"mediumFishSprite.png");
 
     //大
-    //largeFishTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"largeFishSprite1.png");
-    fishTestSprite[2] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"largeFishSprite1.png");
+    fishSprite[largeFishState] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"largeFishSprite.png");
 
 
     //餌(アイテム)
-    //feedTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"wormTestSprite.png");
     feedTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"wormSprite.png");
 
 
@@ -342,7 +337,7 @@ void MainScene::Render()
 
     //プレイヤー
     DX9::SpriteBatch->DrawSimple(
-        fishTestSprite[playerStatus].Get(), SimpleMath::Vector3(playerPositionX, playerPositionY, -(playerPositionY + fishScaleY[playerStatus]) / zPositionWidth),
+        fishSprite[playerStatus].Get(), SimpleMath::Vector3(playerPositionX, playerPositionY, -(playerPositionY + fishScaleY[playerStatus]) / zPositionWidth),
         RectWH(playerSpriteAnimationX, playerSpriteAnimationY, fishScaleX[playerStatus], fishScaleY[playerStatus])
     );
 
@@ -412,7 +407,7 @@ void MainScene::Render()
 
     DX9::SpriteBatch->DrawString(
         gaugeStageFont.Get(), SimpleMath::Vector2(500.0f, 670.0f), 
-        DX9::Colors::RGBA(0, 0, 0, 255), L"playerSpriteAnimationX:%d", playerSpriteAnimationX
+        DX9::Colors::RGBA(0, 0, 0, 255), L"speedUpTime:%d", (int)speedUpTime
     );
 
 
@@ -474,7 +469,6 @@ void MainScene::bgMoveSpeedUpdate(const float deltaTime)
         bgPositionX -= topSpeed * deltaTime;
         if (speedUpTime >= 2.0f)
         {
-            speedUpTime = 0.0f;
             playerSpeedStatus = largeFishSpeedState;
             speedUp = false;
         }
@@ -510,7 +504,6 @@ void MainScene::setBgScrollSpeed()
             playerSpeedStatus = largeFishSpeedState;
         break;
     }
-    
 }
 
 
@@ -598,6 +591,7 @@ int MainScene::gaugeStateUpdate(const float deltaTime)
         else if (isObstacleCollisionDetectionUpdate())
         {
             obstaclePositionResetUpdate();
+            speedUpTime = 0.0f;
             gaugeState = forthStage;
         }
         break;
@@ -621,92 +615,30 @@ void MainScene::playerAnimationUpdate(const float deltaTime)
     {
         playerSpriteAnimationX = 0;
     }
-
-    /*switch (playerSpeedStatus) {
-    case smallFishSpeedState:
-        playerAnimationSpeed += deltaTime;
-        if (playerAnimationSpeed >= 0.05f) 
-        {
-            playerSpriteAnimationX += fishScaleX[playerSpeedStatus];
-            playerAnimationSpeed = 0.0f;
-        }
-        if (playerSpriteAnimationX >= (fishScaleX[playerSpeedStatus] * 8))
-        {
-            playerSpriteAnimationX = 0;
-        }
-        break;
-    case mediumFishSpeedState:
-        playerAnimationSpeed += deltaTime; 
-        if (playerAnimationSpeed >= 0.05f)
-        {
-            playerSpriteAnimationX += mediumFishScaleX;
-            playerAnimationSpeed = 0.0f;
-        }
-        if (playerSpriteAnimationX == (mediumFishScaleX * 8))
-        {
-            playerSpriteAnimationX = 0;
-        }
-        break;
-    case largeFishSpeedState:
-        playerAnimationSpeed += deltaTime;
-        if (playerAnimationSpeed >= 0.05f)
-        {
-            playerSpriteAnimationX += largeFishScaleX;
-            playerAnimationSpeed = 0.0f;
-        }
-        if (playerSpriteAnimationX == (largeFishScaleX * 8))
-        {
-            playerSpriteAnimationX = 0;
-        }
-        break;
-    }*/
 }
 
 //移動可能範囲
 void MainScene::playerMoveRangeUpdate()
 {
-    //上・左
+    //上
     if (playerPositionY <= playerMoveRangeTop)
     {
         playerPositionY = playerMoveRangeTop;
     }
+    //左
     if (playerPositionX <= playerMoveRangeLeft)
     {
         playerPositionX = playerMoveRangeLeft;
     }
-    //右・下
-    //金魚
-    if (playerStatus == smallFishState) {
-        if (playerPositionX >= playerMoveRangeRight - smallFishScaleX)
-        {
-            playerPositionX = playerMoveRangeRight - smallFishScaleX;
-        }
-        if (playerPositionY >= playerMoveRangeBottom - smallFishScaleY)
-        {
-            playerPositionY = playerMoveRangeBottom - smallFishScaleY;
-        }
+    //右
+    if (playerPositionX >= playerMoveRangeRight - fishScaleX[playerStatus])
+    {
+        playerPositionX = playerMoveRangeRight - fishScaleX[playerStatus];
     }
-    //ナマズ
-    if (playerStatus == mediumFishState) {
-        if (playerPositionX >= playerMoveRangeRight - mediumFishScaleX)
-        {
-            playerPositionX = playerMoveRangeRight - mediumFishScaleX;
-        }
-        if (playerPositionY >= playerMoveRangeBottom - mediumFishScaleY)
-        {
-            playerPositionY = playerMoveRangeBottom - mediumFishScaleY;
-        }
-    }
-    //鯉
-    if (playerStatus == largeFishState) {
-        if (playerPositionX >= playerMoveRangeRight - largeFishScaleX)
-        {
-            playerPositionX = playerMoveRangeRight - largeFishScaleX;
-        }
-        if (playerPositionY >= playerMoveRangeBottom - largeFishScaleY)
-        {
-            playerPositionY = playerMoveRangeBottom - largeFishScaleY;
-        }
+    //下
+    if (playerPositionY >= playerMoveRangeBottom - fishScaleY[playerStatus])
+    {
+        playerPositionY = playerMoveRangeBottom - fishScaleY[playerStatus];
     }
 }
 
@@ -750,7 +682,6 @@ void MainScene::playerControlKeyboardUpdate(const float deltaTime)
     }
 
     playerPositionY += playerInertiaY;
-
 }
 
 //パッド操作
@@ -1126,3 +1057,4 @@ bool MainScene::isPlayerCollisionDetection(Rect& rect2)
 
     return false;
 }
+

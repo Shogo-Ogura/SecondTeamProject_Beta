@@ -63,16 +63,9 @@ private:
 
 
     //プレイヤー
-    //小
-    DX9::SPRITE smallFishTestSprite;
+    //プレイヤー画像
+    DX9::SPRITE fishSprite[3];
 
-    //中
-    DX9::SPRITE mediumFishTestSprite;
-
-    //大
-    DX9::SPRITE largeFishTestSprite;
-
-    DX9::SPRITE fishTestSprite[3];
     //プレイヤーサイズ
     enum playerScale {
         //小
@@ -102,11 +95,11 @@ private:
     //プレイヤー状態
     int playerStatus;
     enum playerState {
-        //金魚
+        //小
         smallFishState,
-        //ナマズ
+        //中
         mediumFishState,
-        //鯉
+        //大
         largeFishState
     };
 
