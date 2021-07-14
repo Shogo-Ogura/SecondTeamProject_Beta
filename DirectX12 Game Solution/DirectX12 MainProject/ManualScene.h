@@ -50,14 +50,14 @@ private:
     const float smallFishSpeed = 300.0f;
     const float mediumFishSpeed = 500.0f;
     const float largeFishSpeed = 700.0f;
-    const float topSpeed = 1300.0f;
+    const float topFishSpeed = 1300.0f;
 
     //背景ループ位置
     const float bgResetPosition = 2560.0f;
     float bgMoveDistance;
 
     //ループカウント
-    int loopCount;
+    int bgLoopCount;
 
     //プレイ時間
     float playTime;
@@ -86,7 +86,7 @@ private:
 
     //プレイヤーアニメーション
     int playerSpriteAnimationX, playerSpriteAnimationY;
-    //1コマの時間
+    //1コマの表示時間
     const float playerAnimationFrame = 0.05f;
     //アニメーションコマ数
     enum { frameNumber = 8 };
@@ -127,17 +127,17 @@ private:
 
     //プレイヤー移動速度
     //キーボード
-    const float   keyboardPlayerUpMoveSpeed = -30.0f;
-    const float   keyboardPlayerDownMoveSpeed = 30.0f;
-    const float   keyboardPlayerRightMoveSpeed = 30.0f;
-    const float   keyboardPlayerLeftMoveSpeed = -30.0f;
+    const float   keyboardPlayerUpMoveSpeed    = -30.0f;
+    const float   keyboardPlayerDownMoveSpeed  =  30.0f;
+    const float   keyboardPlayerRightMoveSpeed =  30.0f;
+    const float   keyboardPlayerLeftMoveSpeed  = -30.0f;
 
     //パッド
     //十字キー
-    const float gamePadButtonPlayerMoveSpeedUp = -30.0f;
-    const float gamePadButtonPlayerMoveSpeedDown = 30.0f;
-    const float gamePadButtonPlayerMoveSpeedRight = 30.0f;
-    const float gamePadButtonPlayerMoveSpeedLeft = -30.0f;
+    const float gamePadButtonPlayerMoveSpeedUp    = -30.0f;
+    const float gamePadButtonPlayerMoveSpeedDown  =  30.0f;
+    const float gamePadButtonPlayerMoveSpeedRight =  30.0f;
+    const float gamePadButtonPlayerMoveSpeedLeft  = -30.0f;
     //スティック
     const float gamePadPlayerMoveSpeedX = 500.0f;
     const float gamePadPlayerMoveSpeedY = 500.0f;
@@ -147,16 +147,19 @@ private:
 
     //プレイヤー移動範囲
     enum playerMoveRange {
-        playerMoveRangeTop = 251,
+        playerMoveRangeTop    = 251,
         playerMoveRangeBottom = 720,
-        playerMoveRangeRight = 1280,
-        playerMoveRangeLeft = 0
+        playerMoveRangeRight  = 1280,
+        playerMoveRangeLeft   = 0
     };
 
 
     //餌(アイテム)
-    DX9::SPRITE feedTestSprite;
-    float feedPositionX, feedPositionY;
+    enum { feedMaxAmount = 14 };    //最大量
+    DX9::SPRITE feedTestSprite[feedMaxAmount];
+    float feedPositionX[feedMaxAmount], feedPositionY[feedMaxAmount];
+    bool feedGet;
+    float feedGetTime;
 
     //餌サイズ
     enum {
@@ -167,74 +170,38 @@ private:
     //餌移動速度
     const float feedMoveSpeed = 350.0f;
 
-    //餌初期位置
-    const float feedInitialPositionX = 1500.0f;
-    const float feedInitialPositionY = 500.0f;
-
-    //餌リセット位置
-    const float feedResetPositionX = -100.0f;
-
-    //餌ランダム初期位置
-    std::mt19937 randomEngine;
-    std::uniform_real_distribution<float> randomFeedPositionY;
-    float feedResetPositionY;
-
-    //餌出現範囲
-    const float feedAppearanceTop = 251.0f;
-    const float feedAppearanceBottom = 650.0f;
-
 
     //障害物
+    //各種障害物最大量
+    enum obstacleamount {
+        birdMaxAmount      = 3,
+        bigRockMaxAmount   = 15,
+        smallRockMaxAmount = 34,
+        woodMaxAmount      = 2
+    };
+
     //鳥
-    DX9::SPRITE birdTestSprite;
-    float birdPositionX, birdPositionY;
+    DX9::SPRITE birdTestSprite[birdMaxAmount];
+    float birdPositionX[birdMaxAmount];
+    float birdPositionY[birdMaxAmount];
 
     //岩(大)
-    DX9::SPRITE bigRockSprite;
-    float bigRockPositionX, bigRockPositionY;
+    DX9::SPRITE bigRockSprite[bigRockMaxAmount];
+    float bigRockPositionX[bigRockMaxAmount], bigRockPositionY[bigRockMaxAmount];
 
     //岩(小)
-    DX9::SPRITE smallRockSprite;
-    float smallRockPositionX, smallRockPositionY;
+    DX9::SPRITE smallRockSprite[smallRockMaxAmount];
+    float smallRockPositionX[smallRockMaxAmount], smallRockPositionY[smallRockMaxAmount];
 
     //木
-    DX9::SPRITE woodSprite;
-    float woodPositionX, woodPositionY;
+    DX9::SPRITE woodSprite[woodMaxAmount];
+    float woodPositionX[woodMaxAmount], woodPositionY[woodMaxAmount];
+
+    bool obstacleCollision;
+    float obstacleCollisionTime;
 
     //障害物移動速度
     const float obstacleMoveSpeed = 350.0f;
-
-    //障害物初期位置
-    const float obstacleInitialPositionX = 1500.0f;
-    const float obstacleInitialPositionY = 300.0f;
-
-    //障害物リセット位置
-    const float obstacleResetPositionX = -300.0f;
-
-    //障害物ランダム位置
-    std::uniform_real_distribution<float> randomObstaclePositionY;
-    float obstacleResetPositionY;
-
-    //岩(大)ランダム位置
-    std::uniform_int_distribution<int> randomBigRockPosition;
-    bool bigRockPositionPattern;
-
-    //障害物ランダムパターン
-    std::uniform_int_distribution<int> randomObstacle;
-    int obstaclePattern;
-
-    //障害物出現範囲
-    const float obstacleAppearanceTop = 251.0f;
-    const float obstacleAppearanceBottom = 510.0f;
-
-    //岩(大)出現場所
-    int bigRockPositionState;
-    enum bigRockPosition {
-        topPositionState,
-        bottomPositionState
-    };
-    const float bigRockTopPosition = 250.0f;
-    const float bigRockBottomPosition = 480.0f;
 
     //障害物サイズ
     enum obstacleScale {
@@ -252,14 +219,14 @@ private:
         woodScaleY = 130
     };
 
-    //障害物状態
+    /*//障害物状態
     int obstacleStatus;
     enum obstacleState {
         birdState,
         bigRockState,
         smallRockState,
         woodState
-    };
+    };*/
 
 
     //プレイヤー、餌、障害物Z座標幅
@@ -270,7 +237,7 @@ private:
     //ミニマップ
     DX9::SPRITE miniMapSprite;
     enum miniMapScale {
-        miniMapScaleX = 750,
+        miniMapScaleX = 600,
         miniMapScaleY = 30
     };
     DX9::SPRITE miniMapFishTestSprite;
@@ -302,11 +269,13 @@ private:
     //シーン遷移
     //ゴール
     DX9::SPRITE goalSprite;
-    float goalSpritePositionX, goalSpritePositionY;
+    const float goalSpritePositionX = 0.0f;
+    const float goalSpritePositionY = 0.0f;
+    float goalCollisionPositionX, goalCollisionPositionY;
     bool goal;
     float sceneChangeBuffer;
     //ゴール距離
-    enum { lengthToGoal = 1 };
+    enum { lengthToGoal = 3 };
     //ゴール後遷移までの時間
     const float goalAfterTime = 2.0f;
 
@@ -344,6 +313,9 @@ private:
     //状態遷移
     int gaugeStateUpdate(const float deltaTime);
 
+    //無敵時間
+    void invalidTime(const float deltaTime);
+
 
     //プレイヤー
     //アニメーション 
@@ -363,49 +335,34 @@ private:
 
 
     //餌(アイテム)
+    //餌位置設定
+    void feedPositionSetting();
+    
     //餌移動
     void feedMoveUpdate(const float deltaTime);
-
-    //餌ループ
-    void feedLoopUpdate();
-
-    //餌位置リセット
-    void feedPositionResetUpdate();
 
     //餌当たり判定
     bool isFeedCollisionDetectionUpdate();
 
 
     //障害物
+    //鳥位置設定
+    void birdPositionSetting();
+
+    //岩(大)
+    void bigRockPositionSetting();
+
+    //岩(小)
+    void smallRockPositionSetting();
+
+    //木
+    void woodPositionSetting();
+    
     //障害物移動
     void obstacleMoveUpdate(const float deltaTime);
 
-    /*
-    //鳥
-    void birdObstacleMoveUpdate(const float deltaTime);
-
-    //岩(大)
-    void bigRockObstacleMoveUpdate(const float deltaTime);
-
-    //岩(小)
-    void smallRockObstacleMoveUpdate(const float deltaTime);
-
-    //木
-    void woodObstacleMoveUpdate(const float deltaTime);
-    */
-
     //障害物当たり判定 
     bool isObstacleCollisionDetectionUpdate();
-
-    //障害物ループ
-    void obstacleLoopUpdate();
-
-    //障害物再抽選
-    void obstacleReLotteryUpdate();
-
-    //障害物位置リセット
-    void obstaclePositionResetUpdate();
-
 
     //UI
     //ミニマップ
@@ -413,6 +370,9 @@ private:
 
     //ゲージ
     void gaugeMoveUpdate();
+
+    //ゴール
+    void goalCollisionDetectionUpdate();
 
 
     //シーン遷移

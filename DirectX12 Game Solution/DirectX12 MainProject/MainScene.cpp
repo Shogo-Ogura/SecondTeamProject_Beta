@@ -120,8 +120,6 @@ void MainScene::Initialize()
 
 
     //ゴール
-    goalSpritePositionX = 400.0f;
-    goalSpritePositionY = 300.0f;
     goal = false;
     sceneChangeBuffer = 0.0f;
 
@@ -163,7 +161,6 @@ void MainScene::LoadAssets()
     // グラフィックリソースの初期化処理
 
     //背景
-    //bgTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"bgTestSprite.png");
     bgTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"bgSprite02.png");
     
     
@@ -184,14 +181,13 @@ void MainScene::LoadAssets()
 
     //障害物
     //鳥
-    //birdTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"kingfisherTestSprite.png");
     birdTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"birdSprite.png");
 
     //岩(大)
-    bigRockSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"bigRockSprite02.png");
+    bigRockSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"bigRockSprite.png");
 
     //岩(小)
-    smallRockSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"smallRockSprite02.png");
+    smallRockSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"smallRockSprite.png");
 
     //木
     woodSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"woodSprite.png");
@@ -208,7 +204,7 @@ void MainScene::LoadAssets()
 
 
     //ゴール
-    goalSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"goalTestSprite.png");
+    goalSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"goalSprite.png");
 
 
     //デバッグ用
@@ -274,7 +270,7 @@ NextScene MainScene::Update(const float deltaTime)
         playerSpriteAnimationX = 0;
     }
     
-       //プレイヤー
+    //プレイヤー
     //アニメーション
     playerAnimationUpdate(deltaTime);
 

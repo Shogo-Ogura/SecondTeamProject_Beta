@@ -143,7 +143,7 @@ NextScene PlayMethodScene::changeMainScene()
 {
     if (DXTK->KeyEvent->pressed.Space || (DXTK->GamePadEvent[0].a == GamePad::ButtonStateTracker::PRESSED))
     {
-        return NextScene::MainScene;
+        return NextScene::ManualScene;
     }
 
     return NextScene::Continue;

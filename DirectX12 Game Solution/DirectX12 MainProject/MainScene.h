@@ -86,7 +86,7 @@ private:
 
     //プレイヤーアニメーション
     int playerSpriteAnimationX, playerSpriteAnimationY;
-    //1コマの時間
+    //1コマの表示時間
     const float playerAnimationFrame = 0.05f;
     //アニメーションコマ数
     enum { frameNumber = 8 };
@@ -302,7 +302,8 @@ private:
     //シーン遷移
     //ゴール
     DX9::SPRITE goalSprite;
-    float goalSpritePositionX, goalSpritePositionY;
+    const float goalSpritePositionX = 0.0f;
+    const float goalSpritePositionY = 0.0f;
     bool goal;
     float sceneChangeBuffer;
     //ゴール距離
