@@ -21,7 +21,7 @@ void PlayMethodScene::Initialize()
     //変数を初期化（具体的な数値を設定する）
     //サウンドを読み込んだりする
 
-
+    playMethodFlag = 0;
 }
 
 // Allocate all memory the Direct3D and Direct2D resources.
@@ -55,7 +55,8 @@ void PlayMethodScene::LoadAssets()
     // グラフィックリソースの初期化処理
 
     //説明画面
-    playMethodSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"playMethodSceneSprite.png");
+    playMethodSprite[0] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"playMethodSprite0.png");
+    playMethodSprite[1] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"playMethodSprite1.png");
 
 }
 
@@ -92,6 +93,10 @@ NextScene PlayMethodScene::Update(const float deltaTime)
     // TODO: Add your game logic here.
     //ゲームを動かすプログラムを記述する
 
+    if (DXTK->KeyEvent->pressed.Space || (DXTK->GamePadEvent[0].a == GamePad::ButtonStateTracker::PRESSED))
+        ++playMethodFlag;
+
+
     //シーン遷移
     return changeMainScene();
 }
@@ -109,8 +114,12 @@ void PlayMethodScene::Render()
 
     // (ここに2D描画の処理が入る)     // 手順5
 
+
     //説明画面
-    DX9::SpriteBatch->DrawSimple(playMethodSprite.Get(), SimpleMath::Vector3(0.0f, 0.0f, 0.0f));
+    DX9::SpriteBatch->DrawSimple(playMethodSprite[0].Get(), SimpleMath::Vector3(0.0f, 0.0f, 0.0f));
+
+    if (playMethodFlag==1)
+        DX9::SpriteBatch->DrawSimple(playMethodSprite[1].Get(), SimpleMath::Vector3(0.0f, 0.0f, -1.0f));
 
 
     DX9::SpriteBatch->End();          // 手順6
@@ -141,10 +150,20 @@ void PlayMethodScene::Render()
 //シーン遷移
 NextScene PlayMethodScene::changeMainScene()
 {
-    if (DXTK->KeyEvent->pressed.Space || (DXTK->GamePadEvent[0].a == GamePad::ButtonStateTracker::PRESSED))
+    if (
+        (DXTK->KeyEvent->pressed.Space
+            || (DXTK->GamePadEvent[0].a == GamePad::ButtonStateTracker::PRESSED))
+        && (playMethodFlag == 2)
+        )
     {
         return NextScene::ManualScene;
     }
+    else if(
+        (DXTK->KeyEvent->pressed.R
+            || ((DXTK->GamePadEvent[0].b == GamePad::ButtonStateTracker::PRESSED))&&(DXTK->GamePadEvent[0].dpadUp==GamePad::ButtonStateTracker::PRESSED))
+        && (playMethodFlag == 1)
+        )
+        return NextScene::MainScene;
 
     return NextScene::Continue;
 }

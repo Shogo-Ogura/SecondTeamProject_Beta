@@ -307,7 +307,7 @@ private:
     bool goal;
     float sceneChangeBuffer;
     //ƒS[ƒ‹‹——£
-    enum { lengthToGoal = 2 };
+    enum { lengthToGoal = 10 };
     //ƒS[ƒ‹Œã‘JˆÚ‚Ü‚Å‚ÌŠÔ
     const float goalAfterTime = 2.0f;
 

@@ -22,6 +22,10 @@ void ManualScene::Initialize()
     //変数を初期化（具体的な数値を設定する）
     //サウンドを読み込んだりする
 
+    std::random_device seed;
+    randomEngine = std::mt19937(seed());
+    randomDist = std::uniform_int_distribution<>(0, 359);
+
     //背景
     bgPositionX = 0.0f;
     bgMoveDistance = 0.0f;
@@ -33,7 +37,7 @@ void ManualScene::Initialize()
     DontDestroy->clearTime = 0.0f;
 
     //ゲージ段階
-    gaugeState = firstStage;
+    gaugeStatus = firstState;
 
 
     //プレイヤー
@@ -88,15 +92,15 @@ void ManualScene::Initialize()
 
     //UI
     //ミニマップ
-    miniMapFishPositionX = miniMapPositionX - miniMapFishScaleX / 2;
-    miniMapFishPositionY = miniMapPositionY - miniMapFishScaleY / 2;
+    miniMapWidth = 65.0f;
+    miniMapHeight = miniMapFishScaleY;
 
     //ゲージ
-    gaugeWidth = firstStage;
+    gaugeWidth = firstState;
 
 
     //ゴール
-    goalCollisionPositionX = 12000;
+    goalCollisionPositionX = goalCollisionInitialPositionX;
     goalCollisionPositionY = 0;
 
     goal = false;
@@ -138,8 +142,7 @@ void ManualScene::LoadAssets()
     // グラフィックリソースの初期化処理
 
     //背景
-    //bgTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"bgTestSprite.png");
-    bgTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"bgSprite02.png");
+    bgSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"bgSprite.png");
 
 
     //プレイヤー
@@ -156,7 +159,7 @@ void ManualScene::LoadAssets()
     //餌(アイテム)
     for (int f = 0; f < feedMaxAmount; ++f)
     {
-        feedTestSprite[f] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"wormSprite.png");
+        feedSprite[f] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"feedSprite.png");
     }
 
     //障害物
@@ -188,15 +191,20 @@ void ManualScene::LoadAssets()
     //UI
     //ミニマップ
     miniMapSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"miniMapSprite.png");
+    miniMapBgSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"miniMapBgSprite.png");
     miniMapFishTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"miniMapFishTestSprite.png");
 
     //ゲージ
-    gaugeTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"gaugeTestSprite.png");
-    gaugeBgTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"gaugeBgTestSprite.png");
+    speedGaugeSprite[0]= DX9::Sprite::CreateFromFile(DXTK->Device9, L"speedGaugeSprite1.png");
+    speedGaugeSprite[1] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"speedGaugeSprite2.png");
+    speedGaugeSprite[2] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"speedGaugeSprite3.png");
+    speedGaugeSprite[3] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"speedGaugeSprite4.png");
+    speedGaugeSprite[4] = DX9::Sprite::CreateFromFile(DXTK->Device9, L"speedGaugeSprite5.png");
 
 
     //ゴール
-    goalSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"goalSprite.png");
+    goalStringSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"goalSprite.png");
+    goalLineSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"goalLineSprite.png");
 
 
     //デバッグ用
@@ -321,7 +329,7 @@ void ManualScene::Render()
     // (ここに2D描画の処理が入る)     // 手順5
 
     //背景
-    DX9::SpriteBatch->DrawSimple(bgTestSprite.Get(), SimpleMath::Vector3(bgPositionX, 0, 10));
+    DX9::SpriteBatch->DrawSimple(bgSprite.Get(), SimpleMath::Vector3(bgPositionX, 0, 10));
 
 
     //プレイヤー
@@ -334,7 +342,7 @@ void ManualScene::Render()
     //餌(アイテム)
     for (int f = 0; f < feedMaxAmount; ++f)
     {
-        DX9::SpriteBatch->DrawSimple(feedTestSprite[f].Get(), SimpleMath::Vector3(feedPositionX[f], feedPositionY[f], 0));
+        DX9::SpriteBatch->DrawSimple(feedSprite[f].Get(), SimpleMath::Vector3(feedPositionX[f], feedPositionY[f], 0));
     }
 
 
@@ -366,44 +374,55 @@ void ManualScene::Render()
 
     //UI
     //ミニマップ
-    DX9::SpriteBatch->DrawSimple(miniMapSprite.Get(), SimpleMath::Vector3(miniMapPositionX, miniMapPositionY, -4));
-    DX9::SpriteBatch->DrawSimple(miniMapFishTestSprite.Get(), SimpleMath::Vector3(miniMapFishPositionX, miniMapFishPositionY, -4));
+    DX9::SpriteBatch->DrawSimple(miniMapSprite.Get(),
+        SimpleMath::Vector3(miniMapPositionX, miniMapPositionY, -5),
+        RectWH(0.0f, 0.0f, miniMapWidth, miniMapHeight)
+    );
+    DX9::SpriteBatch->DrawSimple(miniMapBgSprite.Get(), SimpleMath::Vector3(miniMapPositionX, miniMapPositionY, -4));
 
     //ゲージ
     //本体
-    DX9::SpriteBatch->DrawSimple(gaugeTestSprite.Get(), SimpleMath::Vector3(gaugePositionX, gaugePositionY, 8),
-        RectWH(0.0f, 0.0f, gaugeWidth, 100.0f));
+    /*DX9::SpriteBatch->DrawSimple(speedGaugeSprite.Get(), 
+        SimpleMath::Vector3(gaugePositionX, gaugePositionY, 8),
+        RectWH(0.0f, 0.0f, gaugeWidth, 100.0f)
+    );*/
 
-    //枠
-    DX9::SpriteBatch->DrawSimple(gaugeBgTestSprite.Get(), SimpleMath::Vector3(gaugePositionX, gaugePositionY, 9));
+    DX9::SpriteBatch->DrawSimple(speedGaugeSprite[gaugeStatus].Get(), SimpleMath::Vector3(gaugePositionX, gaugePositionY, 8));
+
+    ////枠
+    //DX9::SpriteBatch->DrawSimple(gaugeBgTestSprite.Get(), SimpleMath::Vector3(gaugePositionX, gaugePositionY, 9));
 
 
     //ゴール
+    //文字
     if (goal)
-        DX9::SpriteBatch->DrawSimple(goalSprite.Get(), SimpleMath::Vector3(goalSpritePositionX, goalSpritePositionY, -10));
+        DX9::SpriteBatch->DrawSimple(goalStringSprite.Get(), SimpleMath::Vector3(goalStringSpritePositionX, goalStringSpritePositionY, -10));
+
+    //ゴールライン
+    DX9::SpriteBatch->DrawSimple(goalLineSprite.Get(), SimpleMath::Vector3(goalCollisionPositionX, goalCollisionPositionY + 250, 0));
 
 
     //デバッグ用
-    DX9::SpriteBatch->DrawString
+    /*DX9::SpriteBatch->DrawString
     (
         playerStatusFont.Get(), SimpleMath::Vector2(0, 670),
-        DX9::Colors::RGBA(0, 0, 0, 255), L"loopCount:%d", (int)bgLoopCount
-    );
+        DX9::Colors::RGBA(0, 0, 0, 255), L"goalCollisionPositionX:%d", (int)goalCollisionPositionX
+    );*/
 
-    DX9::SpriteBatch->DrawString(
-        gaugeStageFont.Get(), SimpleMath::Vector2(230.0f, 670.0f),
-        DX9::Colors::RGBA(0, 0, 0, 255), L"bgMoveDistance:%d", (int)bgMoveDistance
-    );
+    /*DX9::SpriteBatch->DrawString(
+        gaugeStageFont.Get(), SimpleMath::Vector2(420.0f, 670.0f),
+        DX9::Colors::RGBA(0, 0, 0, 255), L"goalCollisionPositionY:%d", (int)goalCollisionPositionY
+    );*/
 
-    DX9::SpriteBatch->DrawString(
-        gaugeStageFont.Get(), SimpleMath::Vector2(600.0f, 670.0f),
-        DX9::Colors::RGBA(0, 0, 0, 255), L"feedGet:%d", (int)feedGet
-    );
-
-    DX9::SpriteBatch->DrawString(
+    /*DX9::SpriteBatch->DrawString(
         gaugeStageFont.Get(), SimpleMath::Vector2(800.0f, 670.0f),
-        DX9::Colors::RGBA(0, 0, 0, 255), L"obstacleCollision:%d", (int)obstacleCollision
-    );
+        DX9::Colors::RGBA(0, 0, 0, 255), L"goal:%d", (int)goal
+    );*/
+
+    /*DX9::SpriteBatch->DrawString(
+        gaugeStageFont.Get(), SimpleMath::Vector2(900.0f, 670.0f),
+        DX9::Colors::RGBA(0, 0, 0, 255), L"sceneChangeBuffer:%d", (int)sceneChangeBuffer
+    );*/
 
 
     DX9::SpriteBatch->End();          // 手順6
@@ -510,13 +529,13 @@ void ManualScene::setBgScrollSpeed()
 //状態遷移割当
 int ManualScene::gaugePlayerStateAssignUpdate()
 {
-    if (gaugeState == firstStage || gaugeState == secondStage) {
+    if (gaugeStatus == firstState || gaugeStatus == secondState) {
         playerStatus = smallFishState;
     }
-    else if (gaugeState == thirdStage || gaugeState == forthStage) {
+    else if (gaugeStatus == thirdState || gaugeStatus == forthState) {
         playerStatus = mediumFishState;
     }
-    else if (gaugeState == fifthStage) {
+    else if (gaugeStatus == fifthState) {
         playerStatus = largeFishState;
     }
 
@@ -535,71 +554,91 @@ void ManualScene::countPlayTimeUpdate(const float deltaTime)
 //状態遷移
 int ManualScene::gaugeStateUpdate(const float deltaTime)
 {
-    switch (gaugeState) {
-    case firstStage:
+    switch (gaugeStatus) {
+    case firstState:
         if (isFeedCollisionDetectionUpdate() && (feedGet == false))
         {
-            gaugeState = secondStage;
+            gaugeStatus = secondState;
             feedGet = true;
         }
-        else if (isObstacleCollisionDetectionUpdate() && (obstacleCollision == false))
+        else if (
+            (isBirdCollisionDetectionUpdate()||isBigRockCollisionDetectionUpdate()
+                ||isSmallRockCollisionDetectionUpdate()||isWoodCollisionDetectionUpdate()) 
+            && (obstacleCollision == false)
+            )
         {
             gameOver = true;
             obstacleCollision = true;
         }
         break;
-    case secondStage:
+    case secondState:
         if (isFeedCollisionDetectionUpdate() && (feedGet == false))
         {
-            gaugeState = thirdStage;
+            gaugeStatus = thirdState;
             feedGet = true;
         }
-        else if (isObstacleCollisionDetectionUpdate() && (obstacleCollision == false))
+        else if (
+            (isBirdCollisionDetectionUpdate() || isBigRockCollisionDetectionUpdate()
+                || isSmallRockCollisionDetectionUpdate() || isWoodCollisionDetectionUpdate())
+            && (obstacleCollision == false)
+            )
         {
-            gaugeState = firstStage;
+            gaugeStatus = firstState;
             obstacleCollision = true;
         }
         break;
-    case thirdStage:
+    case thirdState:
         if (isFeedCollisionDetectionUpdate() && (feedGet == false))
         {;
-            gaugeState = forthStage;
+            gaugeStatus = forthState;
             feedGet = true;
         }
-        else if (isObstacleCollisionDetectionUpdate() && (obstacleCollision == false))
+        else if (
+            (isBirdCollisionDetectionUpdate() || isBigRockCollisionDetectionUpdate()
+                || isSmallRockCollisionDetectionUpdate() || isWoodCollisionDetectionUpdate())
+            && (obstacleCollision == false)
+            )
         {
-            gaugeState = secondStage;
+            gaugeStatus = secondState;
             obstacleCollision = true;
         }
         break;
-    case forthStage:
+    case forthState:
         if (isFeedCollisionDetectionUpdate() && (feedGet == false))
         {
-            gaugeState = fifthStage;
+            gaugeStatus = fifthState;
             feedGet = true;
         }
-        else if (isObstacleCollisionDetectionUpdate() && (obstacleCollision == false))
+        else if (
+            (isBirdCollisionDetectionUpdate() || isBigRockCollisionDetectionUpdate()
+                || isSmallRockCollisionDetectionUpdate() || isWoodCollisionDetectionUpdate())
+            && (obstacleCollision == false)
+            )
         {
-            gaugeState = thirdStage;
+            gaugeStatus = thirdState;
             obstacleCollision = true;
         }
         break;
-    case fifthStage:
+    case fifthState:
         if (isFeedCollisionDetectionUpdate() && (feedGet == false))
         {
             speedUp = true;
             feedGet = true;
         }
-        else if (isObstacleCollisionDetectionUpdate() && (obstacleCollision == false))
+        else if (
+            (isBirdCollisionDetectionUpdate() || isBigRockCollisionDetectionUpdate()
+                || isSmallRockCollisionDetectionUpdate() || isWoodCollisionDetectionUpdate())
+            && (obstacleCollision == false)
+            )
         {
             speedUpTime = 0.0f;
-            gaugeState = forthStage;
+            gaugeStatus = forthState;
             obstacleCollision = true;
         }
         break;
     }
 
-    return gaugeState;
+    return gaugeStatus;
 }
 
 //無敵時間
@@ -609,7 +648,7 @@ void ManualScene::invalidTime(const float deltaTime)
     if (feedGet) 
     {
         feedGetTime += deltaTime;
-        if (feedGetTime >= 2.0f)
+        if (feedGetTime >= 1.0f)
         {
             feedGetTime = 0.0f;
             feedGet = false;
@@ -620,13 +659,12 @@ void ManualScene::invalidTime(const float deltaTime)
     if (obstacleCollision)
     {
         obstacleCollisionTime += deltaTime;
-        if (obstacleCollisionTime >= 2.0f)
+        if (obstacleCollisionTime >= 1.0f)
         {
             obstacleCollisionTime = 0.0f;
             obstacleCollision = false;
         }
     }
-    
 }
 
 
@@ -806,6 +844,11 @@ void ManualScene::feedPositionSetting()
 
     feedPositionX[13] = 11140;
     feedPositionY[13] = 380;
+
+    for (int i = 0; i < _countof(feedPositionY); ++i) {
+        feedBasePosY[i] = feedPositionY[i];
+        feedTheta   [i] = (float)randomDist(randomEngine);
+    }
 }
 
 //移動
@@ -837,6 +880,14 @@ void ManualScene::feedMoveUpdate(const float deltaTime)
                     feedPositionX[f] -= (feedMoveSpeed + topFishSpeed) * deltaTime;
                 break;
             }
+        }
+
+        const float DELTA_ANGLE = XM_PI * deltaTime;
+        for (int i = 0; i < _countof(feedBasePosY); ++i) {
+            feedPositionY[i]  = feedBasePosY[i] + sin(feedTheta[i]) * 10.0f;
+            feedTheta    [i] += DELTA_ANGLE;
+            if (feedTheta[i] >= XM_2PI)
+                feedTheta[i] -= XM_2PI;
         }
     }
 }
@@ -1113,30 +1164,51 @@ void ManualScene::obstacleMoveUpdate(const float deltaTime)
     }
 }
 
-//障害物当たり判定
-bool ManualScene::isObstacleCollisionDetectionUpdate()
+//鳥当たり判定
+bool ManualScene::isBirdCollisionDetectionUpdate()
 {
-    for (int b = 0; b < birdMaxAmount; ++b)
+    for (int b = 0; b < birdMaxAmount; ++b) 
     {
         if (isPlayerCollisionDetection(RectWH(birdPositionX[b], birdPositionY[b], birdScaleX, birdScaleY)))
             return true;
     }
-    for (int r = 0; r < bigRockMaxAmount; ++r)
+    
+    return false;
+}
+
+//岩(大)
+bool ManualScene::isBigRockCollisionDetectionUpdate()
+{
+    for (int r = 0; r < bigRockMaxAmount; ++r) 
     {
-        if (isPlayerCollisionDetection(RectWH(bigRockPositionX[r], bigRockPositionY[r], bigRockScaleX, bigRockScaleY)))
+        if (isPlayerCollisionDetection(RectWH(bigRockPositionX[r], bigRockPositionY[r] + 125, bigRockScaleX, 85)))
             return true;
     }
+
+        return false;
+}
+
+//岩(小)
+bool ManualScene::isSmallRockCollisionDetectionUpdate()
+{
     for (int s = 0; s < smallRockMaxAmount; ++s)
     {
         if (isPlayerCollisionDetection(RectWH(smallRockPositionX[s], smallRockPositionY[s], smallRockScaleX, smallRockScaleY)))
             return true;
     }
+    
+    return false;
+}
+
+//木
+bool ManualScene::isWoodCollisionDetectionUpdate()
+{
     for (int w = 0; w < woodMaxAmount; ++w)
     {
         if (isPlayerCollisionDetection(RectWH(woodPositionX[w], woodPositionY[w], woodScaleX, woodScaleY)))
             return true;
     }
-
+    
     return false;
 }
 
@@ -1145,27 +1217,27 @@ bool ManualScene::isObstacleCollisionDetectionUpdate()
 //ミニマップ
 void ManualScene::miniMapMoveUpdate(const float deltaTime)
 {
-    miniMapFishPositionX = bgMoveDistance / (bgResetPosition * lengthToGoal) * miniMapScaleX + miniMapFishScaleX / 2;
+    miniMapWidth = (80+(bgMoveDistance / (bgResetPosition * lengthToGoal) * 475));
 }
 
 //ゲージ
 void ManualScene::gaugeMoveUpdate()
 {
-    switch (gaugeState) {
-    case firstStage:
-        gaugeWidth = firstStage;
+    switch (gaugeStatus) {
+    case firstState:
+        gaugeWidth = firstState;
         break;
-    case secondStage:
-        gaugeWidth = secondStage;
+    case secondState:
+        gaugeWidth = secondState;
         break;
-    case thirdStage:
-        gaugeWidth = thirdStage;
+    case thirdState:
+        gaugeWidth = thirdState;
         break;
-    case forthStage:
-        gaugeWidth = forthStage;
+    case forthState:
+        gaugeWidth = forthState;
         break;
-    case fifthStage:
-        gaugeWidth = fifthStage;
+    case fifthState:
+        gaugeWidth = fifthState;
         break;
     }
 }
@@ -1173,6 +1245,8 @@ void ManualScene::gaugeMoveUpdate()
 //ゴール
 void ManualScene::goalCollisionDetectionUpdate()
 {
+    goalCollisionPositionX = smallRockPositionX[33] + 300;
+
     if (isPlayerCollisionDetection(RectWH(goalCollisionPositionX, goalCollisionPositionY, 50, 720)))
         goal = true;
 }

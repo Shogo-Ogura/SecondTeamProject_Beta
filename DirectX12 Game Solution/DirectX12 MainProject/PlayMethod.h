@@ -42,7 +42,8 @@ private:
     // •Ï”‚ÌéŒ¾
 
     //à–¾‰æ–Ê
-    DX9::SPRITE playMethodSprite;
+    DX9::SPRITE playMethodSprite[2];
+    int playMethodFlag;
 
 
 private:

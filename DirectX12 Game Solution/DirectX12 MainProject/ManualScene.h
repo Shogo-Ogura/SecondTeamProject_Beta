@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Scene.h"
-#include<random>
+#include <random>
 
 using Microsoft::WRL::ComPtr;
 using std::unique_ptr;
@@ -43,14 +43,14 @@ private:
     // 変数の宣言
 
     //背景
-    DX9::SPRITE bgTestSprite;
+    DX9::SPRITE bgSprite;
     float bgPositionX;
 
     //スクロール速度
     const float smallFishSpeed = 300.0f;
-    const float mediumFishSpeed = 500.0f;
-    const float largeFishSpeed = 700.0f;
-    const float topFishSpeed = 1300.0f;
+    const float mediumFishSpeed = 400.0f;
+    const float largeFishSpeed = 600.0f;
+    const float topFishSpeed = 800.0f;
 
     //背景ループ位置
     const float bgResetPosition = 2560.0f;
@@ -156,10 +156,15 @@ private:
 
     //餌(アイテム)
     enum { feedMaxAmount = 14 };    //最大量
-    DX9::SPRITE feedTestSprite[feedMaxAmount];
+    DX9::SPRITE feedSprite[feedMaxAmount];
     float feedPositionX[feedMaxAmount], feedPositionY[feedMaxAmount];
-    bool feedGet;
+    float feedBasePosY[feedMaxAmount];
+    float feedTheta[feedMaxAmount];
+    bool  feedGet;
     float feedGetTime;
+
+    std::mt19937 randomEngine;
+    std::uniform_int_distribution<> randomDist;
 
     //餌サイズ
     enum {
@@ -236,6 +241,7 @@ private:
     //UI
     //ミニマップ
     DX9::SPRITE miniMapSprite;
+    DX9::SPRITE miniMapBgSprite;
     enum miniMapScale {
         miniMapScaleX = 600,
         miniMapScaleY = 30
@@ -247,31 +253,34 @@ private:
     };
     const float miniMapPositionX = 100;
     const float miniMapPositionY = 35;
+    float miniMapHeight, miniMapWidth;
     float miniMapFishPositionX, miniMapFishPositionY;
     const float miniMapFishInitialPositionX = 100;
     const float miniMapFishInitialPositionY = 10;
 
     //ゲージ
-    DX9::SPRITE gaugeTestSprite;
-    DX9::SPRITE gaugeBgTestSprite;
+    DX9::SPRITE speedGaugeSprite[5];
     float gaugeWidth;
-    int gaugeState;
+    int gaugeStatus;
     enum gaugeState {
-        firstStage = 140,
-        secondStage = 280,
-        thirdStage = 420,
-        forthStage = 560,
-        fifthStage = 700
+        firstState ,
+        secondState,
+        thirdState ,
+        forthState ,
+        fifthState
     };
     const float gaugePositionX = 70.0f;
     const float gaugePositionY = 100.0f;
 
     //シーン遷移
     //ゴール
-    DX9::SPRITE goalSprite;
-    const float goalSpritePositionX = 0.0f;
-    const float goalSpritePositionY = 0.0f;
+    DX9::SPRITE goalStringSprite;
+    DX9::SPRITE goalLineSprite;
+    const float goalStringSpritePositionX = 0.0f;
+    const float goalStringSpritePositionY = 0.0f;
     float goalCollisionPositionX, goalCollisionPositionY;
+    //ゴール初期位置
+    const float goalCollisionInitialPositionX = 12620;  //=smallRockPositionX[33] + 300
     bool goal;
     float sceneChangeBuffer;
     //ゴール距離
@@ -361,8 +370,17 @@ private:
     //障害物移動
     void obstacleMoveUpdate(const float deltaTime);
 
-    //障害物当たり判定 
-    bool isObstacleCollisionDetectionUpdate();
+    //鳥当たり判定
+    bool isBirdCollisionDetectionUpdate();
+
+    //岩(大)当たり判定
+    bool isBigRockCollisionDetectionUpdate();
+
+    //岩(小)当たり判定
+    bool isSmallRockCollisionDetectionUpdate();
+
+    //木当たり判定
+    bool isWoodCollisionDetectionUpdate();
 
     //UI
     //ミニマップ

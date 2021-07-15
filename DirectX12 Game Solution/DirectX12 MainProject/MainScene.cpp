@@ -161,7 +161,7 @@ void MainScene::LoadAssets()
     // グラフィックリソースの初期化処理
 
     //背景
-    bgTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"bgSprite02.png");
+    bgTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"bgSprite.png");
     
     
     //プレイヤー
@@ -396,7 +396,7 @@ void MainScene::Render()
 
 
     //デバッグ用
-    DX9::SpriteBatch->DrawString
+    /*DX9::SpriteBatch->DrawString
     (
         playerStatusFont.Get(), SimpleMath::Vector2(0, 670), 
         DX9::Colors::RGBA(0, 0, 0, 255), L"miniMapFishPositionX:%d", goal
@@ -405,7 +405,7 @@ void MainScene::Render()
     DX9::SpriteBatch->DrawString(
         gaugeStageFont.Get(), SimpleMath::Vector2(500.0f, 670.0f), 
         DX9::Colors::RGBA(0, 0, 0, 255), L"clearTime:%d", (int)DontDestroy->clearTime
-    );
+    );*/
 
 
     DX9::SpriteBatch->End();          // 手順6
