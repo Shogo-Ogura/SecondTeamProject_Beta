@@ -93,7 +93,7 @@ void ManualScene::Initialize()
     //UI
     //ミニマップ
     miniMapWidth = 65.0f;
-    miniMapHeight = miniMapFishScaleY;
+    miniMapHeight = 70;
 
     //ゲージ
     gaugeWidth = firstState;
@@ -192,7 +192,6 @@ void ManualScene::LoadAssets()
     //ミニマップ
     miniMapSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"miniMapSprite.png");
     miniMapBgSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"miniMapBgSprite.png");
-    miniMapFishTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"miniMapFishTestSprite.png");
 
     //ゲージ
     speedGaugeSprite[0]= DX9::Sprite::CreateFromFile(DXTK->Device9, L"speedGaugeSprite1.png");
@@ -589,7 +588,7 @@ int ManualScene::gaugeStateUpdate(const float deltaTime)
         break;
     case thirdState:
         if (isFeedCollisionDetectionUpdate() && (feedGet == false))
-        {;
+        {
             gaugeStatus = forthState;
             feedGet = true;
         }
@@ -627,7 +626,7 @@ int ManualScene::gaugeStateUpdate(const float deltaTime)
         }
         else if (
             (isBirdCollisionDetectionUpdate() || isBigRockCollisionDetectionUpdate()
-                || isSmallRockCollisionDetectionUpdate() || isWoodCollisionDetectionUpdate())
+                || /*isSmallRockCollisionDetectionUpdate() ||*/ isWoodCollisionDetectionUpdate())
             && (obstacleCollision == false)
             )
         {

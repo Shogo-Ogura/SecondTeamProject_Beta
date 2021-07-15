@@ -197,6 +197,7 @@ private:
     //ä‚(è¨)
     DX9::SPRITE smallRockSprite[smallRockMaxAmount];
     float smallRockPositionX[smallRockMaxAmount], smallRockPositionY[smallRockMaxAmount];
+    bool smallRock;
 
     //ñÿ
     DX9::SPRITE woodSprite[woodMaxAmount];
@@ -246,17 +247,9 @@ private:
         miniMapScaleX = 600,
         miniMapScaleY = 30
     };
-    DX9::SPRITE miniMapFishTestSprite;
-    enum miniMapFishScale {
-        miniMapFishScaleX = 94,
-        miniMapFishScaleY = 70
-    };
     const float miniMapPositionX = 100;
     const float miniMapPositionY = 35;
     float miniMapHeight, miniMapWidth;
-    float miniMapFishPositionX, miniMapFishPositionY;
-    const float miniMapFishInitialPositionX = 100;
-    const float miniMapFishInitialPositionY = 10;
 
     //ÉQÅ[ÉW
     DX9::SPRITE speedGaugeSprite[5];
